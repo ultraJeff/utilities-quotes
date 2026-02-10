@@ -20,6 +20,7 @@ spec:
   type: service
   lifecycle: production
   owner: user:default/admin
+  system: utilities
   providesApis:
     - utilities-quotes-api
 ---
