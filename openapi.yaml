@@ -1,28 +1,21 @@
 openapi: 3.0.3
 info:
-  title: Quotes Utility API
-  description: Provides inspirational quotes for various categories
+  title: Utility Rate Quotes API
+  description: Provides utility rate quotes (electricity, gas, water, solar) adjusted for weather conditions
   version: 1.0.0
 servers:
   - url: http://utilities-quotes.utilities.svc.cluster.local:3002
     description: Kubernetes service
 paths:
-  /api/quotes:
+  /api/rates:
     get:
-      summary: Get all quotes
-      operationId: getAllQuotes
+      summary: Get rate quotes for all cities
+      operationId: getAllRates
       tags:
-        - Quotes
-      parameters:
-        - name: category
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter by category
+        - Rates
       responses:
         '200':
-          description: List of quotes
+          description: Rate quotes for all available cities
           content:
             application/json:
               schema:
@@ -31,71 +24,109 @@ paths:
                   quotes:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Quote'
-                  total:
-                    type: integer
-  /api/quotes/random:
+                      $ref: '#/components/schemas/CityRateQuote'
+                  generatedAt:
+                    type: string
+                    format: date-time
+  /api/rates/base:
     get:
-      summary: Get a random quote
-      operationId: getRandomQuote
+      summary: Get base utility rates (no weather adjustment)
+      operationId: getBaseRates
       tags:
-        - Quotes
+        - Rates
       responses:
         '200':
-          description: A random quote
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Quote'
-  /api/quotes/categories/list:
-    get:
-      summary: List available categories
-      operationId: getCategories
-      tags:
-        - Quotes
-      responses:
-        '200':
-          description: List of categories
+          description: Base rates for all utilities
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  categories:
+                  rates:
                     type: array
                     items:
-                      type: string
-  /api/quotes/{id}:
+                      $ref: '#/components/schemas/BaseRate'
+                  note:
+                    type: string
+  /api/rates/{city}:
     get:
-      summary: Get a quote by ID
-      operationId: getQuoteById
+      summary: Get rate quote for a specific city
+      operationId: getCityRates
       tags:
-        - Quotes
+        - Rates
       parameters:
-        - name: id
+        - name: city
           in: path
           required: true
           schema:
-            type: integer
+            type: string
+          description: City name (e.g., new-york, london, tokyo)
       responses:
         '200':
-          description: The quote
+          description: Rate quote for the city
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Quote'
+                $ref: '#/components/schemas/CityRateQuote'
         '404':
-          description: Quote not found
+          description: City not found or weather unavailable
 components:
   schemas:
-    Quote:
+    BaseRate:
       type: object
       properties:
-        id:
-          type: integer
-        text:
+        utility:
           type: string
-        author:
+          example: electricity
+        rate:
+          type: number
+          example: 0.12
+        unit:
           type: string
-        category:
+          example: kWh
+    UtilityRate:
+      type: object
+      properties:
+        utility:
           type: string
+          example: Electricity
+        baseRate:
+          type: number
+          example: 0.12
+        unit:
+          type: string
+          example: kWh
+        weatherAdjustment:
+          type: number
+          example: 0.04
+        adjustedRate:
+          type: number
+          example: 0.16
+        reason:
+          type: string
+          example: High cooling demand due to heat
+    CityRateQuote:
+      type: object
+      properties:
+        city:
+          type: string
+          example: new-york
+        weather:
+          type: object
+          properties:
+            temperature:
+              type: number
+            conditions:
+              type: string
+            humidity:
+              type: number
+        rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/UtilityRate'
+        generatedAt:
+          type: string
+          format: date-time
+        validFor:
+          type: string
+          example: 1 hour

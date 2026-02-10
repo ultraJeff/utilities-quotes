@@ -2,7 +2,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: utilities-quotes
-  description: Inspirational quotes utility microservice
+  description: Utility rate quotes service - provides electricity, gas, water, and solar rates adjusted for weather conditions
   annotations:
     backstage.io/kubernetes-id: utilities-quotes
     backstage.io/kubernetes-namespace: utilities
@@ -12,6 +12,7 @@ metadata:
     - typescript
     - microservice
     - utilities
+    - pricing
   links:
     - url: https://github.com/ultraJeff/utilities-quotes
       title: GitHub Repo
@@ -21,6 +22,10 @@ spec:
   lifecycle: production
   owner: user:default/admin
   system: utilities
+  dependsOn:
+    - component:utilities-weather
+  consumesApis:
+    - utilities-weather-api
   providesApis:
     - utilities-quotes-api
 ---
@@ -28,10 +33,11 @@ apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: utilities-quotes-api
-  description: REST API for inspirational quotes
+  description: REST API for weather-adjusted utility rate quotes
   tags:
     - rest
-    - quotes
+    - pricing
+    - utilities
 spec:
   type: openapi
   lifecycle: production
