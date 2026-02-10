@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: utilities-quotes
+  namespace: utilities
+  labels:
+    app: utilities-quotes
+    app.kubernetes.io/name: utilities-quotes
+    app.kubernetes.io/part-of: utilities
+    backstage.io/kubernetes-id: utilities-quotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: utilities-quotes
+  template:
+    metadata:
+      labels:
+        app: utilities-quotes
+        app.kubernetes.io/name: utilities-quotes
+        app.kubernetes.io/part-of: utilities
+        backstage.io/kubernetes-id: utilities-quotes
+    spec:
+      containers:
+        - name: utilities-quotes
+          image: image-registry.openshift-image-registry.svc:5000/utilities/utilities-quotes:latest
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 500m
+            requests:
+              memory: 128Mi
+              cpu: 100m
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3002
+            initialDelaySeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: utilities-quotes
+  namespace: utilities
+  labels:
+    app: utilities-quotes
+    app.kubernetes.io/name: utilities-quotes
+    app.kubernetes.io/part-of: utilities
+spec:
+  ports:
+    - port: 3002
+      targetPort: 3002
+  selector:
+    app: utilities-quotes
