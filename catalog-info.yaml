@@ -1,0 +1,39 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: utilities-quotes
+  description: Inspirational quotes utility microservice
+  annotations:
+    backstage.io/kubernetes-id: utilities-quotes
+    backstage.io/kubernetes-namespace: utilities
+    github.com/project-slug: ultraJeff/utilities-quotes
+  tags:
+    - nodejs
+    - typescript
+    - microservice
+    - utilities
+  links:
+    - url: https://github.com/ultraJeff/utilities-quotes
+      title: GitHub Repo
+      icon: github
+spec:
+  type: service
+  lifecycle: production
+  owner: user:default/admin
+  providesApis:
+    - utilities-quotes-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: utilities-quotes-api
+  description: REST API for inspirational quotes
+  tags:
+    - rest
+    - quotes
+spec:
+  type: openapi
+  lifecycle: production
+  owner: user:default/admin
+  definition:
+    $text: ./openapi.yaml

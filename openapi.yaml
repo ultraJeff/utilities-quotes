@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: Quotes Utility API
+  description: Provides inspirational quotes for various categories
+  version: 1.0.0
+servers:
+  - url: http://utilities-quotes.utilities.svc.cluster.local:3002
+    description: Kubernetes service
+paths:
+  /api/quotes:
+    get:
+      summary: Get all quotes
+      operationId: getAllQuotes
+      tags:
+        - Quotes
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by category
+      responses:
+        '200':
+          description: List of quotes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  quotes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Quote'
+                  total:
+                    type: integer
+  /api/quotes/random:
+    get:
+      summary: Get a random quote
+      operationId: getRandomQuote
+      tags:
+        - Quotes
+      responses:
+        '200':
+          description: A random quote
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+  /api/quotes/categories/list:
+    get:
+      summary: List available categories
+      operationId: getCategories
+      tags:
+        - Quotes
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+  /api/quotes/{id}:
+    get:
+      summary: Get a quote by ID
+      operationId: getQuoteById
+      tags:
+        - Quotes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The quote
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        '404':
+          description: Quote not found
+components:
+  schemas:
+    Quote:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        author:
+          type: string
+        category:
+          type: string
